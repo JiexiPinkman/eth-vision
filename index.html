@@ -1028,7 +1028,7 @@
     </section>
 
     <footer>
-      <p>加密货币数据: <a href="https://www.binance.com" target="_blank">Binance</a> | 美股数据: <a href="https://finance.qq.com" target="_blank">腾讯财经</a></p>
+      <p>加密货币数据: <a href="https://www.okx.com" target="_blank">OKX</a> | 美股数据: <a href="https://finance.qq.com" target="_blank">腾讯财经</a></p>
       <p class="credit">网站制作：牛逼的严浩远</p>
     </footer>
   </div>
@@ -1130,7 +1130,7 @@
     let wsConnection = null;
     let reconnectAttempts = 0;
     let currentAsset = 'ETH';
-    let currentApi = 'binance';
+    let currentApi = 'okx';
 
     // Generate asset selector buttons
     function generateAssetSelector() {
@@ -1178,10 +1178,7 @@
       document.getElementById('currentPrice').textContent = '加载中...';
       priceHistory = [];
       
-      // Reconnect WebSocket and fetch data
-      if (wsConnection) {
-        try { wsConnection.close(); } catch (e) {}
-      }
+      // Reconnect and fetch data
       connectWebSocket();
       await fetchPriceData();
       
@@ -1294,56 +1291,38 @@
 
     // API configurations
     const API_CONFIG = {
-      binance: {
-        name: 'Binance',
-        getTickerUrl: (asset) => `https://data-api.binance.vision/api/v3/ticker/24hr?symbol=${ASSETS[asset].binanceSymbol}`,
-        getKlineUrl: (asset, interval, limit) => `https://data-api.binance.vision/api/v3/klines?symbol=${ASSETS[asset].binanceSymbol}&interval=${interval}&limit=${limit}`,
-        getWsUrl: (asset) => `wss://stream.binance.com:9443/ws/${ASSETS[asset].binanceSymbol.toLowerCase()}@ticker`,
-        parseTicker: (data, asset) => ({
-          price: parseFloat(data.lastPrice),
-          change24h: parseFloat(data.priceChangePercent),
-          volume: parseFloat(data.quoteVolume) > 1e9 
-            ? (parseFloat(data.quoteVolume) / 1e9).toFixed(2) + 'B' 
-            : (parseFloat(data.quoteVolume) / 1e6).toFixed(2) + 'M',
-          high24h: parseFloat(data.highPrice),
-          low24h: parseFloat(data.lowPrice)
-        }),
-        parseKline: (data) => ({
-          time: data[0],
-          price: parseFloat(data[4])
-        }),
-        interval: { 1: '1h', 7: '1h', 30: '4h', 90: '1d' },
-        limit: { 1: 24, 7: 168, 30: 180, 90: 90 },
-        isCryptoOnly: true
-      },
-      bitfinex: {
-        name: 'Bitfinex',
-        getTickerUrl: (asset) => {
-          const symbol = ASSETS[asset].binanceSymbol.replace('USDT', 'USD').replace('BTC', 'BTC');
-          return `https://api-pub.bitfinex.com/v2/ticker/t${symbol}`;
-        },
+      okx: {
+        name: 'OKX',
+        getTickerUrl: (asset) => `https://www.okx.com/api/v5/market/ticker?instId=${ASSETS[asset].binanceSymbol}-USDT`,
         getKlineUrl: (asset, interval, limit) => {
-          const symbol = ASSETS[asset].binanceSymbol.replace('USDT', 'USD');
-          return `https://api-pub.bitfinex.com/v2/candles/trade:${interval}:t${symbol}/hist?limit=${limit}`;
+          const bar = API_CONFIG.okx.intervalMap[limit] || '1H';
+          return `https://www.okx.com/api/v5/market/candles?instId=${ASSETS[asset].binanceSymbol}-USDT&bar=${bar}&limit=${limit}`;
         },
-        wsUrl: null,
-        parseTicker: (data) => {
-          const lastPrice = parseFloat(data[4]);
-          const dailyChangePerc = parseFloat(data[9]) * 100;
+        getWsUrl: (asset) => `wss://ws.okx.com:8443/ws/v5/public?instId=${ASSETS[asset].binanceSymbol}-USDT`,
+        parseTicker: (data, asset) => {
+          const d = data.data?.[0] || [];
           return {
-            price: lastPrice,
-            change24h: dailyChangePerc,
-            volume: '--',
-            high24h: parseFloat(data[6]),
-            low24h: parseFloat(data[7])
+            price: parseFloat(d.last),
+            change24h: parseFloat(d.sodUtc8) > 0 ? ((parseFloat(d.last) - parseFloat(d.sodUtc8)) / parseFloat(d.sodUtc8) * 100) : 0,
+            volume: parseFloat(d.vol24h) > 1e9 
+              ? (parseFloat(d.vol24h) / 1e9).toFixed(2) + 'B' 
+              : (parseFloat(d.vol24h) / 1e6).toFixed(2) + 'M',
+            high24h: parseFloat(d.high24h),
+            low24h: parseFloat(d.low24h)
           };
         },
-        parseKline: (data) => ({
-          time: data[0],
-          price: parseFloat(data[2])
-        }),
-        interval: { 1: '1h', 7: '1h', 30: '4h', 90: '1d' },
+        parseKline: (data) => {
+          const d = data.data?.[0] || [];
+          return {
+            time: parseInt(d.ts),
+            price: parseFloat(d.close)
+          };
+        },
+        interval: { 1: '1H', 7: '1H', 30: '4H', 90: '1D' },
+        intervalMap: { 24: '1H', 168: '1H', 180: '4H', 90: '1D' },
         limit: { 1: 24, 7: 168, 30: 180, 90: 90 },
+        isCryptoOnly: true
+      }
         isCryptoOnly: true
       }
     };
@@ -1378,7 +1357,8 @@
         console.error('Fetch error:', error);
         updateStatus(`状态: ${api.name} 连接失败`, false);
         
-        tryNextApi();
+        // Retry after 3 seconds
+        setTimeout(fetchPriceData, 3000);
       }
     }
 
@@ -1506,21 +1486,6 @@
       };
     }
 
-    // Try next available API
-    async function tryNextApi() {
-      const apis = Object.keys(API_CONFIG);
-      const currentIndex = apis.indexOf(currentApi);
-      const nextIndex = (currentIndex + 1) % apis.length;
-      
-      if (nextIndex !== currentIndex) {
-        currentApi = apis[nextIndex];
-        document.getElementById('apiSelector').value = currentApi;
-        await fetchPriceData();
-      } else {
-        setTimeout(fetchPriceData, 3000);
-      }
-    }
-
     // Fetch historical klines for chart
     async function fetchKlineData(days = 7) {
       const asset = ASSETS[currentAsset];
@@ -1599,75 +1564,14 @@
       
       // Stocks don't support WebSocket in this demo
       if (asset.category === 'stock') {
-        updateStatus('状态: 已连接 (Yahoo Finance)', true);
+        updateStatus('状态: 已连接 (腾讯财经)', true);
         return;
       }
       
       const api = API_CONFIG[currentApi];
       
-      if (wsConnection) {
-        try { wsConnection.close(); } catch (e) {}
-      }
-
-      if (!api.getWsUrl) {
-        updateStatus(`状态: 已连接 (${api.name} - REST)`, true);
-        return;
-      }
-
-      updateStatus(`状态: 连接 ${api.name}...`, false);
-
-      try {
-        const ws = new WebSocket(api.getWsUrl(currentAsset));
-
-        ws.onopen = () => {
-          console.log('WebSocket connected');
-          updateStatus(`状态: 已连接 (${api.name})`, true);
-          reconnectAttempts = 0;
-        };
-
-        ws.onmessage = (event) => {
-          try {
-            const msg = JSON.parse(event.data);
-            
-            if (msg.e === '24hrTicker') {
-              const lastPrice = parseFloat(msg.c);
-              const change24h = parseFloat(msg.priceChangePercent);
-
-              updatePriceDisplay({
-                price: lastPrice,
-                change24h: change24h,
-                volume: parseFloat(msg.q) > 1e9 ? (parseFloat(msg.q) / 1e9).toFixed(2) + 'B' : (parseFloat(msg.q) / 1e6).toFixed(2) + 'M',
-                high24h: parseFloat(msg.h),
-                low24h: parseFloat(msg.l)
-              });
-            }
-          } catch (e) {
-            // Ignore parse errors
-          }
-        };
-
-        ws.onerror = (error) => {
-          console.error('WebSocket error:', error);
-          updateStatus('状态: WebSocket 错误', false);
-        };
-
-        ws.onclose = () => {
-          console.log('WebSocket disconnected');
-          updateStatus('状态: 重新连接中...', false);
-          
-          reconnectAttempts++;
-          const delay = Math.min(3000 * reconnectAttempts, 15000);
-          
-          if (autoRefreshEnabled) {
-            setTimeout(connectWebSocket, delay);
-          }
-        };
-
-        wsConnection = ws;
-      } catch (error) {
-        console.error('WebSocket connection error:', error);
-        updateStatus('状态: WebSocket 不可用', false);
-      }
+      // Use REST polling instead of WebSocket for better compatibility
+      updateStatus(`状态: 已连接 (${api.name})`, true);
     }
 
     // Market sentiment data
