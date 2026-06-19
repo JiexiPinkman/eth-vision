@@ -23,7 +23,7 @@
 | 股票 | 名称 | 数据源 |
 |------|------|--------|
 | TSLA | Tesla 特斯拉 | Yahoo Finance |
-| SPXC | S&P 500 标普500 | Yahoo Finance |
+| SPCX | SpaceX 太空探索 | Yahoo Finance |
 | MU | Micron 美光科技 | Yahoo Finance |
 
 ---
