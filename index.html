@@ -2044,6 +2044,20 @@
     document.getElementById('apiSelector').addEventListener('change', async function() {
       currentApi = this.value;
       
+      const asset = ASSETS[currentAsset];
+      
+      // For stocks, skip API switching - use Tencent Finance directly
+      if (asset.category === 'stock') {
+        chartDataCache = {};
+        lastFetchTime = 0;
+        await fetchStockData();
+        const activeTimeframe = document.querySelector('.timeframe-btn.active');
+        if (activeTimeframe) {
+          await updateChart(parseInt(activeTimeframe.dataset.days));
+        }
+        return;
+      }
+      
       chartDataCache = {};
       lastFetchTime = 0;
       
@@ -2057,6 +2071,8 @@
       const activeTimeframe = document.querySelector('.timeframe-btn.active');
       if (activeTimeframe) {
         await updateChart(parseInt(activeTimeframe.dataset.days));
+      }
+    });
       }
     });
 
