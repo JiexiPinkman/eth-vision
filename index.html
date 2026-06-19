@@ -1028,7 +1028,7 @@
     </section>
 
     <footer>
-      <p>加密货币数据: <a href="https://www.okx.com" target="_blank">OKX</a> | 美股数据: <a href="https://finance.qq.com" target="_blank">腾讯财经</a></p>
+      <p>加密货币数据: <a href="https://www.mexc.com" target="_blank">MEXC</a> | 美股数据: <a href="https://finance.qq.com" target="_blank">腾讯财经</a></p>
       <p class="credit">网站制作：牛逼的严浩远</p>
     </footer>
   </div>
@@ -1130,7 +1130,7 @@
     let wsConnection = null;
     let reconnectAttempts = 0;
     let currentAsset = 'ETH';
-    let currentApi = 'okx';
+    let currentApi = 'mexc';
 
     // Generate asset selector buttons
     function generateAssetSelector() {
@@ -1291,38 +1291,28 @@
 
     // API configurations
     const API_CONFIG = {
-      okx: {
-        name: 'OKX',
-        getTickerUrl: (asset) => `https://www.okx.com/api/v5/market/ticker?instId=${ASSETS[asset].binanceSymbol}-USDT`,
-        getKlineUrl: (asset, interval, limit) => {
-          const bar = API_CONFIG.okx.intervalMap[limit] || '1H';
-          return `https://www.okx.com/api/v5/market/candles?instId=${ASSETS[asset].binanceSymbol}-USDT&bar=${bar}&limit=${limit}`;
-        },
-        getWsUrl: (asset) => `wss://ws.okx.com:8443/ws/v5/public?instId=${ASSETS[asset].binanceSymbol}-USDT`,
+      mexc: {
+        name: 'MEXC',
+        getTickerUrl: (asset) => `https://api.mexc.com/api/v3/market/ticker?symbol=${ASSETS[asset].binanceSymbol}`,
+        getKlineUrl: (asset, interval, limit) => `https://api.mexc.com/api/v3/market/klines?symbol=${ASSETS[asset].binanceSymbol}&interval=${interval}&limit=${limit}`,
         parseTicker: (data, asset) => {
-          const d = data.data?.[0] || [];
+          const d = data.data || {};
           return {
-            price: parseFloat(d.last),
-            change24h: parseFloat(d.sodUtc8) > 0 ? ((parseFloat(d.last) - parseFloat(d.sodUtc8)) / parseFloat(d.sodUtc8) * 100) : 0,
-            volume: parseFloat(d.vol24h) > 1e9 
-              ? (parseFloat(d.vol24h) / 1e9).toFixed(2) + 'B' 
-              : (parseFloat(d.vol24h) / 1e6).toFixed(2) + 'M',
-            high24h: parseFloat(d.high24h),
-            low24h: parseFloat(d.low24h)
+            price: parseFloat(d.lastPrice),
+            change24h: parseFloat(d.priceChangePercent),
+            volume: parseFloat(d.quoteVolume) > 1e9 
+              ? (parseFloat(d.quoteVolume) / 1e9).toFixed(2) + 'B' 
+              : (parseFloat(d.quoteVolume) / 1e6).toFixed(2) + 'M',
+            high24h: parseFloat(d.highPrice),
+            low24h: parseFloat(d.lowPrice)
           };
         },
-        parseKline: (data) => {
-          const d = data.data?.[0] || [];
-          return {
-            time: parseInt(d.ts),
-            price: parseFloat(d.close)
-          };
-        },
-        interval: { 1: '1H', 7: '1H', 30: '4H', 90: '1D' },
-        intervalMap: { 24: '1H', 168: '1H', 180: '4H', 90: '1D' },
+        parseKline: (data) => ({
+          time: parseInt(data[0]),
+          price: parseFloat(data[4])
+        }),
+        interval: { 1: '1m', 7: '1h', 30: '4h', 90: '1d' },
         limit: { 1: 24, 7: 168, 30: 180, 90: 90 },
-        isCryptoOnly: true
-      }
         isCryptoOnly: true
       }
     };
@@ -1525,11 +1515,7 @@
         const result = await response.json();
         
         let klineArray;
-        if (currentApi === 'binance') {
-          klineArray = Array.isArray(result) ? result : result.data;
-        } else {
-          klineArray = result.data || [];
-        }
+        const klineArray = Array.isArray(result) ? result : (result.data || []);
         
         if (!Array.isArray(klineArray)) {
           throw new Error('Invalid kline response format');
