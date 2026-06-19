@@ -1,31 +1,45 @@
-# ETHVision - 以太坊实时价格追踪与预测平台
+# CryptoVision - 加密货币与美股实时追踪平台
 
-![ETHVision](https://img.shields.io/badge/ETHVision-Ethereum-cyan?style=for-the-badge&logo=ethereum)
+![CryptoVision](https://img.shields.io/badge/CryptoVision-Crypto%20%26%20Stocks-cyan?style=for-the-badge&logo=bitcoinsv)
 ![Status](https://img.shields.io/badge/status-Live-brightgreen?style=for-the-badge)
 ![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)
 
-> **🚀 专业级以太坊价格追踪与智能预测平台 | 实时数据 | 机器学习预测 | 新闻聚合**
+> **🚀 专业级加密货币与美股实时追踪平台 | 实时数据 | 多资产支持 | 智能预测**
+
+---
+
+## ✨ 支持的资产
+
+### 🪙 加密货币
+| 币种 | 名称 | 数据源 |
+|------|------|--------|
+| ETH | Ethereum 以太坊 | Binance / Bitfinex |
+| BTC | Bitcoin 比特币 | Binance / Bitfinex |
+| BNB | BNB 币安币 | Binance / Bitfinex |
+| OKB | OKX 平台币 | Binance / Bitfinex |
+| SOL | Solana 索拉纳 | Binance / Bitfinex |
+
+### 📈 美股
+| 股票 | 名称 | 数据源 |
+|------|------|--------|
+| TSLA | Tesla 特斯拉 | Yahoo Finance |
+| SPXC | S&P 500 标普500 | Yahoo Finance |
+| MU | Micron 美光科技 | Yahoo Finance |
 
 ---
 
 ## ✨ 核心特性
 
 ### 📊 实时价格追踪
-- **毫秒级实时价格更新** - 多交易所聚合数据（Binance、Bitfinex）
-- **WebSocket 实时连接** - 无刷新实时推送价格变动
-- **多时间周期图表** - 1天、1周、1月、3月、1年、全部历史
+- **多资产支持** - 一站式追踪主流加密货币和热门美股
+- **毫秒级实时更新** - WebSocket 实时推送价格变动
+- **多时间周期图表** - 24小时、7天、30天、90天历史数据
 - **专业级 K 线图表** - 支持缩放、拖拽、数据点悬停
 
 ### 🔮 AI 智能价格预测
-- **多周期价格预测** - 1小时、1天、1周、1月未来价格预测
+- **多周期价格预测** - 1小时、24小时、7天未来价格预测
 - **智能置信度评估** - 基于历史波动率计算预测可信度
-- **价格变动概率分析** - 量化上涨/下跌概率分布
 - **支撑阻力位分析** - 自动识别关键价格区间
-
-### 📰 市场新闻聚合
-- **实时新闻滚动播报** - 聚合 Cointelegraph、CoinDesk 等权威媒体
-- **智能时间显示** - 自动计算相对时间（刚刚、5分钟前等）
-- **一键跳转原文** - 快速获取完整资讯
 
 ### 💡 专业技术架构
 - **纯前端实现** - 无需后端服务器，降低部署成本
@@ -35,13 +49,14 @@
 
 ---
 
-## 🎯 为什么选择 ETHVision？
+## 🎯 为什么选择 CryptoVision？
 
-| 特性 | ETHVision | 传统追踪器 |
-|------|------------|-----------|
+| 特性 | CryptoVision | 传统追踪器 |
+|------|-------------|-----------|
+| 多资产支持 | ✅ 8+ 加密货币和美股 | ❌ 仅单一资产 |
 | 实时更新 | ✅ WebSocket 毫秒级 | ❌ 5-30秒轮询 |
-| 价格预测 | ✅ 多周期 AI 预测 | ❌ 无 |
-| 新闻聚合 | ✅ 实时滚动播报 | ❌ 无 |
+| 价格预测 | ✅ 多周期预测 | ❌ 无 |
+| 美股支持 | ✅ Yahoo Finance | ❌ 无 |
 | 移动适配 | ✅ 完美响应式 | ⚠️ 勉强支持 |
 | 无需注册 | ✅ 开箱即用 | ✅ 开箱即用 |
 | 零成本部署 | ✅ 单文件即可 | ❌ 需要服务器 |
@@ -52,8 +67,8 @@
 
 - **前端框架**: 原生 JavaScript (ES6+)
 - **图表库**: Chart.js 4.x
-- **数据源**: Binance API, Bitfinex API, CoinGecko API
-- **新闻源**: Cointelegraph RSS, CoinDesk RSS
+- **加密货币数据**: Binance API, Bitfinex API
+- **美股数据**: Yahoo Finance API
 - **样式**: CSS3 变量 + Flexbox + Grid + 动画
 - **图标**: SVG 内联图标
 
@@ -89,20 +104,18 @@ npx serve .
 
 ```
 ┌─────────────────────────────────────────────────────┐
-│  [📰] Cointelegraph: 以太坊 ETF 获批进展...   ◆    │
-│        CoinDesk: 机构投资者增持 ETH...       ◆    │
-├─────────────────────────────────────────────────────┤
+│  ⬡ CryptoVision                                   │
 │                                                     │
-│  ⬡ ETHVision                    [● 实时]           │
+│  [ETH] [BTC] [BNB] [OKB] [SOL] [TSLA] [SPXC] [MU] │
 │                                                     │
 │  ┌─────────────────────────────────────────────┐   │
-│  │  ETH Logo  Ethereum 以太坊                  │   │
+│  │  ETH Logo  Ethereum 以太坊  [加密货币]       │   │
 │  │                                             │   │
 │  │  $1,695.42  [实时]                         │   │
 │  │  ▲ +2.35% (+$38.72)                       │   │
 │  └─────────────────────────────────────────────┘   │
 │                                                     │
-│  [1D] [1W] [1M] [3M] [1Y] [ALL]                  │
+│  [24H] [7D] [30D] [90D]                          │
 │  ┌─────────────────────────────────────────────┐   │
 │  │                                             │   │
 │  │           📈 K线价格图表                    │   │
@@ -111,34 +124,23 @@ npx serve .
 │                                                     │
 │  🔮 价格预测                                       │
 │  ┌──────────┐ ┌──────────┐ ┌──────────┐         │
-│  │ 1小时后   │ │ 1天后     │ │ 1周后    │         │
+│  │ 1小时后   │ │ 24小时后  │ │ 7天后    │         │
 │  │ $1,702   │ │ $1,745   │ │ $1,820   │         │
 │  │ 置信度78% │ │ 置信度65% │ │ 置信度52% │         │
 │  └──────────┘ └──────────┘ └──────────┘         │
 │                                                     │
 │  📊 市场统计                                       │
-│  [市值] [24h交易量] [波动率] [历史高点]           │
+│  [趋势] [24h涨跌] [成交量] [高低点]              │
 │                                                     │
 │  🎯 关键价位                                       │
-│  [支撑位] [阻力位] [当前价格区间]                  │
+│  [支撑位] [阻力位]                                │
 │                                                     │
 ├─────────────────────────────────────────────────────┤
-│  数据来源: Binance / Bitfinex                      │
+│  加密货币: Binance / Bitfinex                      │
+│  美股数据: Yahoo Finance                           │
 │  网站制作：牛逼的严浩远                            │
 └─────────────────────────────────────────────────────┘
 ```
-
----
-
-## 🔧 配置说明
-
-### 切换数据源
-
-点击页面右上角的 API 选择器，可在 Binance 和 Bitfinex 之间切换。
-
-### 自动刷新控制
-
-点击"实时"按钮可开启/关闭自动价格刷新。
 
 ---
 
@@ -146,9 +148,9 @@ npx serve .
 
 | 数据类型 | 来源 | 说明 |
 |---------|------|------|
-| 实时价格 | Binance API | 全球最大加密货币交易所 |
+| 加密货币价格 | Binance / Bitfinex | 全球主流加密货币交易所 |
 | K线数据 | Binance / Bitfinex | 多交易所聚合 |
-| 新闻资讯 | Cointelegraph, CoinDesk | 权威加密货币媒体 |
+| 美股价格 | Yahoo Finance | 权威金融数据源 |
 
 > ⚠️ 预测数据仅供参考，不构成投资建议。市场有风险，投资需谨慎。
 
@@ -178,5 +180,5 @@ MIT License - 自由使用、修改和分发。
 <p align="center">
   <strong>Made with ❤️ by <a href="https://github.com/yanhaoyuan">牛逼的严浩远</a></strong>
   <br>
-  <sub>让以太坊价格追踪变得简单而优雅</sub>
+  <sub>让加密货币和美股追踪变得简单而优雅</sub>
 </p>
