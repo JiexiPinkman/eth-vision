@@ -983,13 +983,6 @@
         </div>
       </div>
       <div class="stat-card">
-        <div class="stat-label">数据源</div>
-        <select id="apiSelector" class="api-selector">
-          <option value="binance">Binance</option>
-          <option value="bitfinex">Bitfinex</option>
-        </select>
-      </div>
-      <div class="stat-card">
         <div class="stat-label">24小时涨跌</div>
         <div class="stat-value" id="change24hStat" style="color: var(--accent-emerald);">--</div>
       </div>
@@ -1035,7 +1028,7 @@
     </section>
 
     <footer>
-      <p>加密货币数据: <a href="https://www.binance.com" target="_blank">Binance</a> / <a href="https://www.bitfinex.com" target="_blank">Bitfinex</a> | 美股数据: <a href="https://query1.finance.yahoo.com" target="_blank">Yahoo Finance</a></p>
+      <p>加密货币数据: <a href="https://www.binance.com" target="_blank">Binance</a> | 美股数据: <a href="https://finance.qq.com" target="_blank">腾讯财经</a></p>
       <p class="credit">网站制作：牛逼的严浩远</p>
     </footer>
   </div>
@@ -2039,42 +2032,6 @@
         refreshInterval = null;
       }
     }
-
-    // API selector event listener
-    document.getElementById('apiSelector').addEventListener('change', async function() {
-      currentApi = this.value;
-      
-      const asset = ASSETS[currentAsset];
-      
-      // For stocks, skip API switching - use Tencent Finance directly
-      if (asset.category === 'stock') {
-        chartDataCache = {};
-        lastFetchTime = 0;
-        await fetchStockData();
-        const activeTimeframe = document.querySelector('.timeframe-btn.active');
-        if (activeTimeframe) {
-          await updateChart(parseInt(activeTimeframe.dataset.days));
-        }
-        return;
-      }
-      
-      chartDataCache = {};
-      lastFetchTime = 0;
-      
-      if (wsConnection) {
-        try { wsConnection.close(); } catch (e) {}
-      }
-      connectWebSocket();
-      
-      await fetchPriceData();
-      
-      const activeTimeframe = document.querySelector('.timeframe-btn.active');
-      if (activeTimeframe) {
-        await updateChart(parseInt(activeTimeframe.dataset.days));
-      }
-    });
-      }
-    });
 
     // Initialize
     async function init() {
